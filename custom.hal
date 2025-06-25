@@ -1,0 +1,10 @@
+# Include your custom HAL commands here
+# This file will not be overwritten when you run PNCconf again
+
+loadusr -W vfdmod --debug vfd.ini
+
+net spindle-speed-cmd vfdmod.spindle.rpm-in <= spindle.0.speed-out
+net spindle-speed-fb vfdmod.spindle.rpm-out <= spindle.0.speed-in
+net spindle-at-speed vfdmod.spindle.at-speed <= spindle.0.at-speed
+net spindle-forward vfdmod.control.run-forward <= spindle.0.forward
+net spindle-reverse vfdmod.control.run-reverse <= spindle.0.reverse
