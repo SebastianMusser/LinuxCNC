@@ -4,8 +4,11 @@ loadrt not
 addf time.0 servo-thread
 addf not.0 servo-thread
 
-net prog-running not.0.in <= halui.program.is-idle
-net prog-paused halui.program.is-paused => time.0.pause
+#net prog-running not.0.in <= halui.program.is-idle
+net cycle-idle not.0.in <= halui.program.is-idle
+
+#net prog-paused halui.program.is-paused => time.0.pause
+net cycle-is-paused halui.program.is-paused => time.0.pause
 net cycle-timer time.0.start <= not.0.out
 net cycle-seconds qtpyvcp.timerseconds.in <= time.0.seconds
 net cycle-minutes qtpyvcp.timerminutes.in <= time.0.minutes

@@ -4,11 +4,12 @@
 # overwritten when you run PNCconf again
 
 loadrt [KINS]KINEMATICS
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_dio=6 num_aio=3
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_dio=16 num_aio=4
 loadrt hostmot2
 loadrt hm2_eth board_ip="10.10.10.10" config="num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 loadrt pid names=pid.x,pid.y,pid.y2,pid.z,pid.s
+loadrt or2 names=or.probeortls
 
 addf hm2_7i76e.0.read          servo-thread
 addf motion-command-handler   servo-thread
@@ -319,7 +320,7 @@ net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-p
 #*******************
 
 # --- TLS-Dust-Remove ---
-net tls-clean-out   motion.digital-out-04   => hm2_7i76e.0.7i76.0.0.output-04
+#net tls-clean-out   motion.digital-out-04   => hm2_7i76e.0.7i76.0.0.output-04
 
 # --- PROBE-IN ---
 net probe-in     <=  hm2_7i76e.0.7i76.0.0.input-08
@@ -330,7 +331,7 @@ net tls-in       <=  hm2_7i76e.0.7i76.0.0.input-09-not
 # --- TLS-Overtravel-IN ---
 #net tls-over-in  <=  hm2_7i76e.0.7i76.0.0.input-10  #not used so far
 
-loadrt or2 names=or.probeortls
+
 addf or.probeortls servo-thread
 
 net probe-in or.probeortls.in0
@@ -338,37 +339,71 @@ net tls-in or.probeortls.in1
 net probe-tool or.probeortls.out
 net probe-tool motion.probe-input
 
+#*******************
+#  ATC-Sensors
+#*******************
+
+# --- Toolclamp-IN ---
+net toolclamp-in   motion.digital-in-10   <=  hm2_7i76e.0.7i76.0.0.input-10
+
+# --- Toolrelease-IN ---
+net toolrelease-in   motion.digital-in-11   <=  hm2_7i76e.0.7i76.0.0.input-11
+
 
 
 #*******************
 #Outputs
 #*******************
 
-net air-sealed-out   motion.digital-out-00   => hm2_7i76e.0.7i76.0.0.output-00    	#ATC
+#set outputs to sinking
+setp hm2_7i76e.0.7i76.0.0.output_sink 0xffff
+
+#set outputs to sourcing
+setp hm2_7i76e.0.7i76.0.0.output_source 0x0000
+
+#net air-sealed-out   motion.digital-out-00   => hm2_7i76e.0.7i76.0.0.output-00    	#ATC
+#net air-sealed-out spindle.0.on => motion.digital-out-00 hm2_7i76e.0.7i76.0.0.output-00
+net spindle-enable spindle.0.on => hm2_7i76e.0.7i76.0.0.output-00
 
 net air-in-out   motion.digital-out-01   => hm2_7i76e.0.7i76.0.0.output-01					#ATC
 
 net air-return-out   motion.digital-out-02   => hm2_7i76e.0.7i76.0.0.output-02			#ATC
 
-net dust-removal-out   motion.digital-out-03   => hm2_7i76e.0.7i76.0.0.output-03		#ATC
+net output-3-unused   motion.digital-out-03   => hm2_7i76e.0.7i76.0.0.output-03	
 
-#net tls-clean-out   motion.digital-out-04   => hm2_7i76e.0.7i76.0.0.output-04   #redundant line - just to have all outputs in one list
+net output-mist   motion.digital-out-04   => hm2_7i76e.0.7i76.0.0.output-04
 
-net output-5   	motion.digital-out-05   => hm2_7i76e.0.7i76.0.0.output-05     
+net output-cover   motion.digital-out-05   => hm2_7i76e.0.7i76.0.0.output-05     
 
-#net output-6   motion.digital-out-06   => hm2_7i76e.0.7i76.0.0.output-06
+net output-6   motion.digital-out-06   => hm2_7i76e.0.7i76.0.0.output-06
 
-#net output-7   motion.digital-out-07   => hm2_7i76e.0.7i76.0.0.output-07
+net output-7   motion.digital-out-07   => hm2_7i76e.0.7i76.0.0.output-07
 
-#net output-8   motion.digital-out-08   => hm2_7i76e.0.7i76.0.0.output-08
+net output-8   motion.digital-out-08   => hm2_7i76e.0.7i76.0.0.output-08
 
 
-#*******************
-#  ATC-Sensors
-#*******************
 
-# --- Toolclamp-IN ---
-net toolclamp-in   motion.digital-in-11   <=  hm2_7i76e.0.7i76.0.0.input-11
+# Button inputs
+#net start-button hm2_7i76e.0.7i76.0.0.input-12
+#net pause-button hm2_7i76e.0.7i76.0.0.input-13
+net estop-button hm2_7i76e.0.7i76.0.0.input-14 => halui.estop.activate
 
-# --- Toolrelease-IN ---
-net toolrelease-in   motion.digital-in-12   <=  hm2_7i76e.0.7i76.0.0.input-12
+loadrt and2 count=2
+addf and2.0 servo-thread
+addf and2.1 servo-thread
+
+net cycle-start hm2_7i76e.0.7i76.0.0.input-12
+
+net cycle-pause halui.program.pause hm2_7i76e.0.7i76.0.0.input-13
+
+net cycle-idle halui.program.is-idle
+net cycle-is-paused halui.program.is-paused
+
+net cycle-start => and2.0.in0
+net cycle-idle => and2.0.in1
+
+net cycle-start => and2.1.in0
+net cycle-is-paused => and2.1.in1
+
+net start halui.program.run and2.0.out
+net resume halui.program.resume and2.1.out 
