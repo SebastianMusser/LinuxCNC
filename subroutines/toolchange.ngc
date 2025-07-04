@@ -1,137 +1,243 @@
-(author: Chris P)
-(version: 0.2)
-(date: 06/27/24)
-
 o<toolchange> sub
+; ************** 	DECLARE VARIABLES *********************************************************
+#<x_travel_pocket> = 40				      ;x travel into or out of pocket
+#<z_travel_pocket> = 50				      ;z travel to tool / from tool
+#<pocket_feedrate> = 1600           ;feedrate to enter / leave pockets
+#<safe_z> = -29
+#<pocket_offset> =	52.833						;distance of pockets in X direction
+#<pocket_one_y> = -611.370 					;664.330							;x position of first slot
+#<pocket_x> = -700			;-911.380									;Y position of slot
+#<pocket_z> = -120.786									;z position of slots
+#<pocket_count> = 12
+#<toolSensor_input> = 10               ;results: 0=tool, 1=notool 
+#<drawbarSensor_input> = 11            ;results: 0=activated/pressurized 1=not activated
+#<airIn_output> = 1
+#<airReturn_output> = 2
+#<cover_output> = 5
+#<measure_start_z> = -75             ;tool touchoff start height
+#<_seek_distance> = 100 
+#<_seek_feedrate> = 500
+#<_retract_distance> = 5
+#<_fine_feedrate> = 100
+#<manualToolchange_x> = -500          ;x position for manual toolchange
+#<manualToolchange_y> = -577          ;y position for manual toolchange
+#<toolsetter_x> = -703.190                 ;toolsetter location
+#<toolsetter_y> = -31.13               ;toolsetter location
 
-; Parameter #3989 is used to track if the carousel is homed (M13) (volatile)
-; Parameter #3990 is used to track the current tool pocket (persistently)
-; Parameter #3991 is used to track the current tool loaded it in the spindle (persistently)
-; Parameters #4001 to #4024 are used to track which tool is in which pocket (persistently)
-; Parameter #4000 is not populated just used in the maths to calculate the above numbers
-; #<number_of_pockets>: The number of pockets the ATC platter has, This is user set in the INI file via #<_ini[atc]pockets>
-; #<atc_z_tool_change_height> The Z height your spindle needs to be at to clamp/unclamp a tool from the ATC platter (Set via INI [ATC]Z_TOOL_CHANGE_HEIGHT)
-; #<atc_z_tool_clearance_height> The Z clearance height in machine coordinates that your spindle needs to be at to clear the tools during carousel rotation (Set via INI [ATC]Z_TOOL_CLEARANCE_HEIGHT)
+#<x_outsidePocket> = [#<pocket_x> + #<x_travel_pocket>]      ;calculate position in front of pocket
+#<z_abovePocket> = [#<pocket_z> + #<z_travel_pocket>]         ;calculate position above pocket
+;*********************************************************************************************
 
-(PRINT, o<toolchange> selected_tool: #<selected_tool>, tool_in_spindle: #<tool_in_spindle>, selected_pocket: #<selected_pocket>, current_pocket: #<current_pocket>, task: #<_task>)
+;************** 	VALIDATION ****************************************************************
+o100 if [#<_selected_tool> LT 0]            ;if selected tool is negative... not sure if that is even possible
+  (debug, Selected Tool: #<_selected_tool> is out of range. Tool change aborted. Program paused.)
+  M0
+  M99
+o100 elseif [#<_selected_tool> EQ #<_current_tool>]
+  (debug, Current tool selected. Tool change bypassed.)
+  M99
+;o100 elseif [#<_selected_tool> EQ 99]
+;  (debug, Probe selected)
+;  M99  
+o100 endif
+(debug, valid Tool change. Lets proceed!)
+;**************END VALIDATION *****************************************************************
 
-o100 if [#<_task> EQ 0]
-    (DEBUG, Task is null)
-    o<toolchange> return [999]
-o100 endif (this code eliminates tool missing error on load for multiple use tools)
+;************** BEGIN SETUP *********************************************************************
+M5																												;Turn off spindle and coolant
+M9
+G90  																											;Activate absolute distance mode
+;calculate tool locations
+#<y_new_tool> = [[[#<_selected_tool> - 1] * #<pocket_offset> ] + #<pocket_one_y>]
+#<y_current_tool> = [[[#<_current_tool> - 1] * #<pocket_offset> ] + #<pocket_one_y>]
+G53 G0 Z[#<safe_z>]	
+;*************** END SETUP ****************
 
-; default to a 12 pocket ATC (matching DynATC Widget behaviour), then update based on INI settings
-#<number_of_pockets> = 12
-o110 if [EXISTS[#<_ini[atc]pockets>]]
-    #<number_of_pockets> = #<_ini[atc]pockets>
-o110 endif
-
-#<atc_z_tool_change_height> = -3.9000
-o120 if [EXISTS[#<_ini[atc]z_tool_change_height>]]
-    #<atc_z_tool_change_height> = #<_ini[atc]z_tool_change_height>
-o120 endif
-#<atc_z_tool_clearance_height> = [#<_ini[AXIS_Z]MAX_LIMIT>-0.01]
-o130 if [EXISTS[#<_ini[atc]z_tool_clearance_height>]]
-    #<atc_z_tool_clearance_height> = #<_ini[atc]z_tool_clearance_height>
-o130 endif
-
-; assign the variables passed by M6 change_prolog to some parameters
-#100 = #<selected_tool>
-#110 = #<tool_in_spindle>
-#120 = #<selected_pocket>
-#121 = #<current_pocket>
-; NOTE:
-;      The legacy names *selected_pocket* and *current_pocket* actually reference
-;      a sequential tooldata index for tool items loaded from a tool
-;      table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
-;      see Linuxcnc docs for further information on how these are used
-
-o140 if [#<selected_tool> EQ #<tool_in_spindle>] ; checks if tool in the spindle is same as requested
-    (PRINT, Requested tool already in spindle)
-    (PRINT, o<toolchange> endsub)
-    o<toolchange> endsub [1]
-    M2
-o140 endif
-
-o150 if [#3991 NE #<tool_in_spindle>]
-    (PRINT, o<toolchange> tool_in_spindle does not match 3991)
-o150 endif
-
-#<next_pocket> = 0 ; assigns 0 to the next pocket for a later check if the tool is found in the carousel
-#<open_pocket> = 0
-#130 = #<number_of_pockets> ; assign test parameter the number of pockets in the carousel
-
-o160 do
-    o161 if [#[4000 + #130] EQ #<selected_tool>] ; checks all pockets to see if it contains tool number requested as the new tool
-        #<next_pocket> = #130 ; if tool is found in pocket, assigns the next pocket
-    o161 endif
-    o162 if [#[4000 + #130] EQ 0] ; checks if the pocket is empty, last pocket checked will be the lowest empty pocket number, for putting tool in spindle away.
-        #<open_pocket> = #130
-    o162 endif
-    #130 = [#130 - 1]
-o160 while [#130 GT 0]
-o170 if [#<next_pocket> EQ 0] ; if tool is not found, aborts and sends a message
-    (abort, Tool T%d#<selected_tool> not found in carousel)
-o170 endif
-
-; now we know which pocket the next tool is sitting in
-; we need to know if we need to put a tool away
-; or if there is not tool in the spindle
-
-o180 if [#<tool_in_spindle> GT 0] ; checks if there is a valid tool in the spindle
-    o181 if [#<open_pocket> EQ 0] ; If there is a tool in the spindle, checks if there is an open pocket
-        (abort, Carousel is full, cant put away tool T#<tool_in_spindle> in into carousel)
-    o181 endif
-    M10 P[#<open_pocket>] ; move carousel to an open pocket
-    M21 ; puts the tool in spindle away into the open pocket
-    (DEBUG, EVAL[vcp.getWidget{"dynatc"}.store_tool{#<open_pocket>, #<tool_in_spindle>}])
-    #140 = #<open_pocket>
-    #[4000 + #140] = #<tool_in_spindle> ; save tool number in pocket
-    #3991 = 0 ; empty tool in the spindle
-    M61 Q0
-    G49
-o180 endif
-
-G90
-G0 G53 Z#<atc_z_tool_clearance_height> ; move z to clear height
-
-o190 if [#<selected_tool> GT 0] ; selected tool is not tool0
-    M10 P#<next_pocket> ; set the carousel to move to the right pocket for the selected tool
-    M65 P1
-    M64 P0
-    M66 P1 L3 Q5 ; check carousel out position sensor
-    o191 if [#5399 LT 0]
-        M65 P0 ; turn off the solenoid to send atc to tool change
-        (abort, Failed to send carousel home) ; abort if the sensor does not activate in 5 seconds
-    o191 endif
-    M65 P0
-
-    (DEBUG, EVAL[vcp.getWidget{"dynatc"}.store_tool{#<next_pocket>, 0}])
-    M22 ; Carousel out
-    #150 = #<next_pocket>
-    #[4000 + #150] = 0 ; empty the pocket
-    #3991 = #<selected_tool> ; Set persistent variable to remember tool in spindle after power cycle
-o190 else
-    M65 P2 ; deactive drawbar
-    M65 P0 ; make sure ATC out solenoid is off
-    M64 P1 ; move carousel home
-    M66 P0 L3 Q4 ; check carousel in position sensor
-    o192 if [#5399 LT 0]
-        M65 P1 ; turn off the solenoid to send atc home
-        (abort, Failed to send carousel home) ; abort if the sensor does not activate in 5 seconds
-    o192 endif
-    M65 P1
-o190 endif
-
-M61 Q#<selected_tool>
-
-o200 if [1 EQ 1]
-    G43 H#<selected_tool>
+; ************** BEGIN UNLOAD **************
+M66 P[#<toolSensor_input>] L0                                       ;check if we really have a physical tool in the spindle
+o200 if [#<_current_tool> EQ 0]
+  (debug, do nothing)
+o200 elseif [#5399 EQ 1]                                             
+  (debug, There is no tool in the spindle but we are trying to unload.... ABORT)
+  M0
+  M99 
+o200 elseif  [#5399 EQ 0]
+  (debug, Tool in spindle validated. Lets proceed)    
 o200 endif
 
-o<program_coolant> call
+o300 if [#<_current_tool> EQ 0]
+    (debug, do nothing)
+o300 elseif [#<_current_tool> GT #<pocket_count>]                   
+    (debug, We have a tool without slot - manual unload necessary)
+    G53 G0 X[#<manualToolchange_x>] Y[#<manualToolchange_y>]
+    (debug, Confirm to start manual unloading)
+    M0
+    G4 P1
+    M64 P[#<airIn_output>]
+    (debug, activate AIR IN)
+    G4 P3
+    M65 P[#<airIn_output>] 
+    (debug, Tool unloaded. Confirm to proceed)
+    M0 
+o300 else           
+    (debug, Unloading tool with pocket)
+		M64 P[#<cover_output>]
+		G4 P1
+    G53 G0 X[#<x_outsidePocket>] Y[#<y_current_tool>] 
+    ;G53 G0 X[#<x_outsidePocket>] 
+    G53 G0 Z[#<pocket_z>]  
+    G53 G1 X[#<pocket_x>]  F[#<pocket_feedrate>]						          	;move into pocket
+    G4 P0
+    M64 P[#<airIn_output>]                                                            ;release tool
+    (debug, activate AIR IN)
+    G4 P1                                                               ;wait a second for pressure to build up
+    M66 P[#<drawbarSensor_input>] L0                                       ;read drawbar status (0=activated, 1=not activated)
+      o320 if [#5399 EQ 1]   
+        (debug, something is wrong - drawbar not activated. ABORT)
+        M99
+      o320 elseif [#5399 EQ 0]
+        (debug, drawbar actuated. Lets proceed) 
+      o320 endif																						
+    G53 G0 Z[#<z_abovePocket>] ;F[#<pocket_feedrate>]										;move spindle up - away from tool
+    G4 P0
+    M65 P[#<airIn_output>] 																										          ;close valve
+    M66 P[#<toolSensor_input>] L0                                       ;read tool status (0=tool, 1=notool)
+      o330 if [#5399 EQ 0]   
+        (debug, something is wrong - We still have a tool. ABORT)
+        M99
+      o330 elseif [#5399 EQ 1]
+        (debug, Spindle-unload confirmed. Lets proceed) 
+      o330 endif																						
+o300 endif 
+; *************** END UNLOAD ***************
 
-(PRINT, o<toolchange> endsub)
-o<toolchange> endsub [1]
+; *************** BEGIN LOAD ***************
+o400 if [#<_selected_tool> EQ 0]  
+    (debug, Tool 0 selected - spindle remains empty. Do Nothing)
+    M61 Q0
+    G53 G0 Z[#<safe_z>] X-600
+o400 else
+  o420 if [#<_selected_tool> GT #<pocket_count>]   ;start manual load
+    G53 G0 Z[#<safe_z>]		                
+    (debug, manual tool load necessary)
+    G53 G0 X[#<manualToolchange_x>] Y[#<manualToolchange_y>]
+    ;G53 G0 Y[#<manualToolchange_y>]
+    (debug, Confirm to start manual loading.....)
+    M0
+    G4 P1
+    M64 P[#<airIn_output>] 
+    (debug, activate AIR IN)
+    G4 P3
+    M65 P[#<airIn_output>] 
+    G4 P1
+    M64 P[#<airReturn_output>]
+    (debug, activate AIR RETURN)
+    G4 P3
+    M65 P[#<airReturn_output>]
+    (debug, Tool loaded. Confirm to proceed.)
+    M0 
+  o420 else
+  	M64 P[#<cover_output>]	           ;open cover
+    (debug, loading a tool with a pocket)
 
+    G53 G0 y[#<y_new_tool>] x[#<pocket_x>] 
+    G53 G0 Z[#<z_abovePocket>]
+    (debug, Move over pocket #<_selected_tool>)
+    G4 P0
+    (debug, activate AIR IN)
+    M64 P[#<airIn_output>] 																										;open drawbar
+    G4 P1
+     M66 P[#<drawbarSensor_input>] L0                                       ;read drawbar status (0=activated, 1=not activated)
+    (debug, Read drawbar sensor input: #5399) 	
+      o421 if [#5399 EQ 1]   
+        (debug, something is wrong - drawbar not activated. ABORT)
+        M99
+      o421 elseif [#5399 EQ 0]
+        (debug, drawbar actuated. Lets proceed) 
+      o421 endif																					
+    G53 G1 Z[#<pocket_z>] F[#<pocket_feedrate>] 	
+    G4 P1
+    M65 P[#<airIn_output>]  																										;close drawbar
+    G4 P0.5
+    M64 P[#<airReturn_output>]																										;activate air return for x sec
+    G4 P0.5
+    M66 P[#<toolSensor_input>] L0                                       ;read sensor status (0=tool, 1=notool)
+        o422 if [#5399 EQ 1]   
+          (debug, Something is wrong - tool check failed. ABORT)
+          M99
+        o422 elseif [#5399 EQ 0]
+          (debug, We have a tool in the spindle. Lets proceed) 
+        o422 endif	
+    G53 G1 X[#<x_outsidePocket>] F[#<pocket_feedrate>]                  ;leave pocket
+    	
+    o425 if [#<_selected_tool> EQ 14]
+   		G53 G0 Z-168.860 
+   		G53 G0 X-856.500 
+   		(debug, starting G38.3 routine)
+			G38.3 X2.5 F100
+			G0 G91 X-2
+			
+				o426 if [#5070 EQ 1]                                                  
+				  (debug, probe validated. Lets proceed!) 
+				o426 else
+				  (debug, probe validation FAILED)
+				  M0    
+				o426 endif
+    
+    o425 endif   
+  o420 endif
+    M61 Q[#<_selected_tool>]
+    G4 P0
+      (debug, Successfully loaded tool #<_selected_tool>)
+    ; *************** END LOAD *****************
+
+		
+    ;####################start measure#################
+    G53 G0 Z[#<safe_z>]		
+    (debug, we start measuring tool #<_selected_tool>)
+        G43.1 Z0                             ; Remove any G43.1 Z offset
+        (debug, G43.1 Z offset removed)
+        o455 if [#5220 EQ 1]
+          #<_z_offset> = [#5213 + #5223]
+        o455 elseif [#5220 EQ 2]
+          #<_z_offset> = [#5213 + #5243]
+        o455 elseif [#5220 EQ 3]
+          #<_z_offset> = [#5213 + #5263]
+        o455 elseif [#5220 EQ 4]
+          #<_z_offset> = [#5213 + #5283]
+        o455 elseif [#5220 EQ 5]
+          #<_z_offset> = [#5213 + #5303]
+        o455 elseif [#5220 EQ 6]
+          #<_z_offset> = [#5213 + #5323]
+        o455 elseif [#5220 EQ 7]
+          #<_z_offset> = [#5213 + #5343]
+        o455 elseif [#5220 EQ 8]
+          #<_z_offset> = [#5213 + #5363]
+        o455 elseif [#5220 EQ 9]
+          #<_z_offset> = [#5213 + #5383]
+        o455 endif
+
+        G53 G90 G0 Z[#<safe_z>]
+        G53 G0 X[#<toolsetter_x>] Y[#<toolsetter_y>]
+        M65 P[#<airReturn_output>]
+        G53 G0 Z[#<measure_start_z>]
+        (debug, start seeking)
+        G38.2 G91 Z[#<_seek_distance> * -1] F[#<_seek_feedrate>]
+        (debug,  seeking done..retract)
+        G0 G91 Z[#<_retract_distance>]
+        (debug, start seeking again)
+        G38.2 G91 Z[[#<_retract_distance> + 1] * -1] F[#<_fine_feedrate>]
+        G53 G0 G90 Z[#<safe_z>]
+        #<_adjust_z> = [#5063 + #<_z_offset>]
+        G4 P0
+          G43.1 Z[#<_adjust_z>]
+        ;$TLR
+        (debug, TLR set)
+    ; ************* END MEASURE ****************
+o400 endif
+G53 G0 Z[#<safe_z>]	
+G53 G0 X-700	
+M65 P[#<cover_output>]	   ;close cover
+
+o<toolchange> endsub
 M2
