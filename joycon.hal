@@ -1,0 +1,31 @@
+#-----------------------------------------------------
+# JOYCON
+#-----------------------------------------------------
+loadusr -W hal_input -KRAL Microsoft X-Box 360 pad
+loadrt mux16 names=jogspeed
+
+addf jogspeed                 servo-thread
+
+# ---USB device jog button signals---
+
+# connect selectable mpg jog speeds 
+net jog-speed-a           =>  jogspeed.sel0
+net jog-speed-b           =>  jogspeed.sel1
+net jog-speed             <=  jogspeed.out-f
+#net jog-speed-a           <=  input.0.btn-trigger
+#net jog-speed-b           <=  input.0.btn-thumb
+net jog-x-pos            input.0.abs-x-is-pos
+net jog-x-neg            input.0.abs-x-is-neg
+net jog-y-pos            input.0.abs-y-is-neg
+net jog-y-neg            input.0.abs-y-is-pos
+#net jog-z-pos            input.0.btn-top2
+#net jog-z-neg            input.0.btn-base
+
+
+setp    jogspeed.in00          10.000000
+setp    jogspeed.in01          500.000000
+setp    jogspeed.in02          5000.000000
+setp    jogspeed.in03          10000.000000
+#-----------------------------------------------------
+# JOYCON END
+#-----------------------------------------------------

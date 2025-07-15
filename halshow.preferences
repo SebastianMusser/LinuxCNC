@@ -1,13 +1,12 @@
 # Halshow settings
 # This file is generated automatically.
-wm geometry . 1198x469+219+123
+wm geometry . 1198x943+530+169
 placeFrames 0.3
 set ::ratio 0.3
 set ::old_w_leftf 160
 set ::watchlist {
     pin+vfdmod.spindle.rpm-in
     pin+vfdmod.spindle.rpm-out
-    sig+probe-tool
     sig+probe-in
     sig+tls-in
     pin+hm2_7i76e.0.7i76.0.0.input-08
@@ -17,7 +16,12 @@ set ::watchlist {
     pin+hm2_7i76e.0.7i76.0.0.input-12-not
     pin+motion.digital-out-00
     pin+hm2_7i76e.0.7i76.0.0.output-00
-    sig+start-button
+    pin+debounce.0.0.out
+    pin+spindle.0.on
+    pin+input.1.btn-a
+    pin+input.0.btn-a
+    pin+input.0.abs-x-is-neg
+    pin+input.0.abs-x-is-pos
 }
 set ::workmode watchhal
 set ::watchInterval 100

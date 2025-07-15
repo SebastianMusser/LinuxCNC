@@ -318,26 +318,27 @@ net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-p
 #*******************
 #  Probe / TLS
 #*******************
+addf or.probeortls servo-thread
+
+loadrt debounce cfg=1
+addf debounce.0 servo-thread
+setp debounce.0.delay 3
 
 # --- TLS-Dust-Remove ---
 #net tls-clean-out   motion.digital-out-04   => hm2_7i76e.0.7i76.0.0.output-04
 
 # --- PROBE-IN ---
-net probe-in     <=  hm2_7i76e.0.7i76.0.0.input-08
-
-# --- TLS-Normal-IN ---
-net tls-in       <=  hm2_7i76e.0.7i76.0.0.input-09-not
-
-# --- TLS-Overtravel-IN ---
-#net tls-over-in  <=  hm2_7i76e.0.7i76.0.0.input-10  #not used so far
-
-
-addf or.probeortls servo-thread
-
+net probe-in	<=  hm2_7i76e.0.7i76.0.0.input-08
 net probe-in or.probeortls.in0
-net tls-in or.probeortls.in1
-net probe-tool or.probeortls.out
-net probe-tool motion.probe-input
+# --- TLS-Normal-IN ---
+net tls-in  <=  hm2_7i76e.0.7i76.0.0.input-09-not
+net tls-in 	or.probeortls.in1
+
+
+#net probe-tool or.probeortls.out
+net debounceProbeTSin debounce.0.0.in  <=  or.probeortls.out
+net debounceProbeTSout debounce.0.0.out =>  motion.probe-input
+#net probe-tool motion.probe-input
 
 #*******************
 #  ATC-Sensors
