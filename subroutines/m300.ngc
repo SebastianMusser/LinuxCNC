@@ -1,0 +1,21 @@
+o<m300> sub
+;Subroutine to start a spindle and pause for a certain time.
+;For spindles without feedback.
+;Stand: 2023-12-30
+
+
+o100 if [#<_current_tool> NE 1 AND #<_current_tool> NE 99]
+  M3
+  ;M64P3
+  G4 P4.0
+  (debug, Spindle ON after delay)
+o100 endif 
+  
+
+o101 if [#<_current_tool> EQ 1 OR #<_current_tool> EQ 99]
+  (ABORT, Either no tool or probe. Turning on the Spindle could cause damage!)
+o101 endif 
+
+o<m300> endsub
+
+M2 (end program)

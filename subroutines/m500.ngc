@@ -1,0 +1,20 @@
+o<m500> sub
+;Subroutine to stop a spindle and pause for a certain time.
+;For spindles without feedback.
+;The pause time will only be use if the spindle was on.
+;Stand: 2023-12-30
+
+#<spindle_on> = #<_spindle_on>
+
+M5
+;M65P3
+(debug, Spindle: #<spindle_on>)
+o<100> if [#<spindle_on> EQ 1]
+    (msg, Spindle is still ON. lets wait 4 seconds)
+    G4 P4.0
+o<100> endif
+;(debug, Spindel wasnt on. No need to wait)
+
+o<m500> endsub
+
+M2 (end program)

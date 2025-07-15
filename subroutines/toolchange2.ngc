@@ -195,48 +195,13 @@ o400 else
 
 		
     ;####################start measure#################
-    G53 G0 Z[#<safe_z>]		
-    (debug, we start measuring tool #<_selected_tool>)
-        G43.1 Z0                             ; Remove any G43.1 Z offset
-        (debug, G43.1 Z offset removed)
-        o455 if [#5220 EQ 1]
-          #<_z_offset> = [#5213 + #5223]
-        o455 elseif [#5220 EQ 2]
-          #<_z_offset> = [#5213 + #5243]
-        o455 elseif [#5220 EQ 3]
-          #<_z_offset> = [#5213 + #5263]
-        o455 elseif [#5220 EQ 4]
-          #<_z_offset> = [#5213 + #5283]
-        o455 elseif [#5220 EQ 5]
-          #<_z_offset> = [#5213 + #5303]
-        o455 elseif [#5220 EQ 6]
-          #<_z_offset> = [#5213 + #5323]
-        o455 elseif [#5220 EQ 7]
-          #<_z_offset> = [#5213 + #5343]
-        o455 elseif [#5220 EQ 8]
-          #<_z_offset> = [#5213 + #5363]
-        o455 elseif [#5220 EQ 9]
-          #<_z_offset> = [#5213 + #5383]
-        o455 endif
-
-        G53 G90 G0 Z[#<safe_z>]
-        G53 G0 X[#<toolsetter_x>] Y[#<toolsetter_y>]
-        M65 P[#<airReturn_output>]
-        G53 G0 Z[#<measure_start_z>]
-        (debug, start seeking)
-        G38.2 G91 Z[#<_seek_distance> * -1] F[#<_seek_feedrate>]
-        (debug,  seeking done..retract)
-        G0 G91 Z[#<_retract_distance>]
-        (debug, retract done, seeking again)
-        G38.2 G91 Z[[#<_retract_distance> + 1] * -1] F[#<_fine_feedrate>]
-        (debug, seek finished. going back to safe-Z)
-        G53 G0 G90 Z[#<safe_z>]
-        #<_adjust_z> = [#5063 + #<_z_offset>]
-        G4 P0
-          G43.1 Z[#<_adjust_z>]
-        ;$TLR
-        (debug, TLR set)
+    G53 G0 Z[#<safe_z>]	
+    
+    o<tool_touch_off> call	
+    
+    (debug, we start measuring tool #<_selected_tool> with the new subroutine)
     ; ************* END MEASURE ****************
+    
 o400 endif
 G53 G0 Z[#<safe_z>]	
 G53 G0 X-700	

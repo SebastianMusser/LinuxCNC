@@ -1,0 +1,28 @@
+
+#<SafeX> =           450        ( Machine ABS X coordinate where spindle can safely warm up )
+#<SafeY> =           240        ( Machine ABS Y coordinate where spindle can safely warm up )
+#<TravelZ> =         -.25      ( machine ABS Z coordinate for travelling, typically near max Z to avoid ever hitting the work )
+
+;G90
+;G53 G0 Z-1
+;G53 G0 X450 Y220
+S8000 M3
+G04 P90
+S10000
+G04 P90
+S12000
+G04 P90
+S14000
+G04 P90
+S16000
+G04 P90
+S18000
+G04 P90
+S20000
+G04 P90
+S22000
+G04 P90
+S24000
+G04 P90
+
+M5
