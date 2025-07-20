@@ -9,19 +9,28 @@ set ::watchlist {
     pin+vfdmod.spindle.rpm-out
     sig+probe-in
     sig+tls-in
-    pin+hm2_7i76e.0.7i76.0.0.input-08
-    pin+hm2_7i76e.0.7i76.0.0.input-09
-    pin+hm2_7i76e.0.7i76.0.0.input-11
-    pin+hm2_7i76e.0.7i76.0.0.input-12
-    pin+hm2_7i76e.0.7i76.0.0.input-12-not
     pin+motion.digital-out-00
     pin+hm2_7i76e.0.7i76.0.0.output-00
     pin+debounce.0.0.out
     pin+spindle.0.on
-    pin+input.1.btn-a
-    pin+input.0.btn-a
-    pin+input.0.abs-x-is-neg
-    pin+input.0.abs-x-is-pos
+    pin+hm2_7i76e.0.7i76.0.0.input-24
+    pin+hm2_7i76e.0.7i76.0.0.input-25
+    pin+hm2_7i76e.0.7i76.0.0.input-26
+    pin+hm2_7i76e.0.7i76.0.0.input-27
+    pin+hm2_7i76e.0.7i76.0.0.input-28
+    pin+hm2_7i76e.0.7i76.0.0.input-29
+    pin+hm2_7i76e.0.7i76.0.0.input-30
+    pin+hm2_7i76e.0.encoder.00.count
+    pin+jogincr.out-f
+    pin+jogincr.sel0
+    pin+jogincr.sel1
+    pin+jogincr.sel2
+    pin+jogincr.sel3
+    pin+jogincr.in00
+    pin+jogincr.in01
+    pin+jogincr.in02
+    pin+jogincr.in03
+    pin+jogincr.in04
 }
 set ::workmode watchhal
 set ::watchInterval 100

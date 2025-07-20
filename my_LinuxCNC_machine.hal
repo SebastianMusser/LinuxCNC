@@ -6,10 +6,11 @@
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_dio=16 num_aio=4
 loadrt hostmot2
-loadrt hm2_eth board_ip="10.10.10.10" config="num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxxxx" 
+loadrt hm2_eth board_ip="10.10.10.10" config="num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=20xxxxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 loadrt pid names=pid.x,pid.y,pid.y2,pid.z,pid.s
 loadrt or2 names=or.probeortls
+loadrt or2 names=or.estopPendantorRemote
 
 addf hm2_7i76e.0.read          servo-thread
 addf motion-command-handler   servo-thread
@@ -383,7 +384,12 @@ net output-cover   motion.digital-out-05   => hm2_7i76e.0.7i76.0.0.output-05
 
 
 # Button inputs
-net estop-button hm2_7i76e.0.7i76.0.0.input-14 => halui.estop.activate
+net estop-button hm2_7i76e.0.7i76.0.0.input-14 #  => halui.estop.activate
+
+addf or.estopPendantorRemote servo-thread
+net estop-button  or.estopPendantorRemote.in0
+net pendant-estop  or.estopPendantorRemote.in1
+net PendantOrRemte or.estopPendantorRemote.out halui.estop.activate
 
 loadrt and2 count=2
 addf and2.0 servo-thread
