@@ -1,7 +1,7 @@
 o<tool_touch_off> sub
 o<400> if [#<_task> EQ 1]
 
-;Subprogram for manual tool change with measurement of the tool.
+;Subprogram for manual tool change with measurement of the tool.... jens
 ;Version date: 2024-12-07
 ;Version: 4.0.1
 ;https://github.com/TooTall18T/tool_length_probe
@@ -12,29 +12,30 @@ o<400> if [#<_task> EQ 1]
 
 ;The parameters 3004 till 3009 must be in the .var-file which is registered under "PARAMETER_FILE" in the machine .ini-file.
 
+(debug, we start measuring tool #<_selected_tool> with the new subroutine)
 
 ;-1- Fixed parameters
 ;-MAIN-
 #<debug_mode> = 1		    ;The debug mode for troubleshooting is set here. 0=OFF, 1=log file . File in the machine's config folder.
-#<tool_touch_x_coords> = -902.590           ;Position of the length button in X
-#<tool_touch_y_coords> = -29.03          ;Position of the length button in Y
-#<tool_touch_z_coords> = -178          ;Position above the length button in Z
+#<tool_touch_x_coords> = -902.590000          ;Position of the length button in X
+#<tool_touch_y_coords> = -29.000000          ;Position of the length button in Y
+#<tool_touch_z_coords> = -5.5          ;Position above the length button in Z
 #<use_tool_table> = 1               ;If "1" the machine uses the tool table for positioning the tool over the 
-#<tool_min_dis> = 5               ;Distance, when measuring a known tool again, between the touch plate and the tool.
+#<tool_min_dis> = 20                ;Distance, when measuring a known tool again, between the touch plate and the tool.
 
 ;-OPTIONS-
 ;--Generally--
 #<brake_after_M600> = 0	      	    ;If ">0" wait for confirmation that the program may continue to work after the measurement. 1=M00, 2=M01
 #<go_back_to_start_pos> = 0         ;If "1" the machine returns to the position where the routine was started.
 #<spindle_stop_m> = 500               ;M-Code number to stop the spindle default 5 (M5), option 500 (M500).
-#<disable_pre_pos> = 1              ;Disable the pre change positioning at g30 position.
+#<disable_pre_pos> = 0              ;Disable the pre change positioning at g30 position.
 #<addreps> = 1                      ;Number of extra repetitions if fast probe failed.
 #<lasttry> = 1                      ;If "1" the machine do a probing at the last repetition without the tool table. #<addreps> must be min "1".
 #<clean_tls> = 1		    ;If "1" the valve for cleaning the tool length sensor wirll be activated just before measuring the tool.
 #<clean_tls_output> = 4		    ;This is the number that would be used in a M64 Px command (x would be 3 in this case). For this to work, you will need to define the "motion.digital-in-0x" pin in your .hal
 
 ;--Tool diameter--
-#<offset_diameter> = 0              ;Tool diameter from when a offset should take place. 0=OFF
+#<offset_diameter> = 20              ;Tool diameter from when a offset should take place. 0=OFF
 #<offset_direction> = 1             ;Direction of the offset. 0=X+ 1=X- 2=Y+ 3=Y-
 #<offset_value> = 50                ;How much of the tool diameter should move in percent.
 
@@ -117,11 +118,13 @@ o<80> if [#<fast_probe_fr> EQ 0 AND #<slow_probe_fr> EQ 0 AND #<z_max_travel> EQ
   #<xy_max_travel> = #3008
   #<spindle_zero_height> = #3010
   o<83> if [#<_task> EQ 1 AND [#<fast_probe_fr> EQ 0 OR #<z_max_travel> EQ 0 OR #<spindle_zero_height> EQ 0]]
+  (debug, if83)
     (ABORT, No valid value for: "fast probe fr", "z max travel" or "spindle zero height"!)
     ;(ABORT, Kein gültiger Wert für: "fast probe fr", "z max travel" or "spindle zero height"!)
   o<83> endif
 
   o<82> if [#3009 NE 0]
+ 
     ;When loading the CNC program, this is checked, but the parameters from the .var file are not loaded.
     ;When #<retract_distance> is 0 that leads to an error: "Start point too close to probe point".
     ;Should #3009(retract_distance) = 0, it is set to 1 to allow the check to run without errors.
@@ -163,7 +166,7 @@ o<80> endif
 
 
 ;-30- Save tool number of old and new tool
-#<tool_in_spindle> = 999   ;Value from system variable  ;#<_current_tool> war statt 999
+#<tool_in_spindle> = #<_current_tool>   ;Value from system variable
 #<tool_selected> = #<_selected_tool>    ;Value from system variable
 (LOG, Automatic: #<auto>)
 (LOG, Parameters: #<para>)
@@ -171,8 +174,10 @@ o<80> endif
 
 
 ;-40- Compare new and old tool numbers
+
 ;If the tool in the spindle is the same as the one selected, no change is made. Except for manual measurement.
 o<90> if [#<auto> EQ 1]
+
   o<92> if [#<tool_in_spindle> EQ #<tool_selected>]
     (DEBUG, Same tool)
     ;(DEBUG, Selbes Werkzeug)
@@ -204,6 +209,8 @@ o<100> endif
 (LOG, ============================)
 
 ;-60- Start of loop, fast measurement
+(debug,-60- Start of loop, fast measurement)
+
 ;If #<addreps> is higher than "0" and fast probe failed, the routine does loops to refit the tool and probe again.
 ;If #<lasttry> is set to "1" and #<addreps> ist higher than "0", at the last repetition the machine does a measurement without the tool table.
 #<fastprobefailed> = 0
@@ -212,6 +219,8 @@ o<200> do
 
 
   ;-70- Positioning over tool length sensor / change position / edge-finder position
+  (debug,   ;-70- Positioning over tool length sensor / change position / edge-finder position)
+  
   ;Turn off spindle befor the machine moves to probe / change  / edge-finder position.
   G49
   G90             (set absolute coordinates)

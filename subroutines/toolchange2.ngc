@@ -1,14 +1,14 @@
-o<toolchange> sub
+o<toolchange2> sub
 ; ************** 	DECLARE VARIABLES *********************************************************
 #<x_travel_pocket> = 39				      ;x travel into or out of pocket
 #<z_travel_pocket> = 50				      ;z travel to tool / from tool
 #<pocket_feedrate> = 1100    ;1600           ;feedrate to enter / leave pockets
 #<safe_z> = -29
 #<pocket_offset> =	52.833						;distance of pockets in X direction
-#<pocket_one_y> = -609.659 					;664.330							;x position of first slot
+#<pocket_one_y> = -556.826						; -609.659 												;y position of first slot
 #<pocket_x> = -908.520												;Y position of slot
 #<pocket_z> = -195.398									;z position of slots
-#<pocket_count> = 11
+#<pocket_count> = 10
 #<toolSensor_input> = 10               ;results: 0=tool, 1=notool 
 #<drawbarSensor_input> = 11            ;results: 0=activated/pressurized 1=not activated
 #<airIn_output> = 1
@@ -46,10 +46,21 @@ o100 endif
 ;************** BEGIN SETUP *********************************************************************
 M5																												;Turn off spindle and coolant
 M9
-G90  																											;Activate absolute distance mode
+G90  	
+																										;Activate absolute distance mode
 ;calculate tool locations
-#<y_new_tool> = [[[#<_selected_tool> - 1] * #<pocket_offset> ] + #<pocket_one_y>]
+
 #<y_current_tool> = [[[#<_current_tool> - 1] * #<pocket_offset> ] + #<pocket_one_y>]
+#<y_new_tool> = [[[#<_selected_tool> - 1] * #<pocket_offset> ] + #<pocket_one_y>]
+
+o140 if [#<_selected_tool> EQ 99]     ;set location for probe (pocket 1)
+	#<y_new_tool> = -609.659
+o140 endif 
+
+o150 if [#<_current_tool> EQ 99]			;set location for probe (pocket 1)
+	#<y_current_tool> = -609.659
+o150 endif
+
 G53 G0 Z[#<safe_z>]	
 ;*************** END SETUP ****************
 
@@ -67,7 +78,7 @@ o200 endif
 
 o300 if [#<_current_tool> EQ 0]
     (debug, do nothing)
-o300 elseif [#<_current_tool> GT #<pocket_count>]                   
+o300 elseif [#<_current_tool> GT #<pocket_count> AND #<_current_tool> NE 99]                  
     (debug, We have a tool without slot - manual unload necessary)
     G53 G0 X[#<manualToolchange_x>] Y[#<manualToolchange_y>]
     (debug, Confirm to start manual unloading)
@@ -117,7 +128,7 @@ o400 if [#<_selected_tool> EQ 0]
     M61 Q0
     G53 G0 Z[#<safe_z>] X-600
 o400 else
-  o420 if [#<_selected_tool> GT #<pocket_count>]   ;start manual load
+  o420 if [#<_selected_tool> GT #<pocket_count> AND #<_selected_tool> NE 99] ;start manual load
   	M64 P[#<cover_output>]
     G53 G0 Z[#<safe_z>]		                
     (debug, manual tool load necessary)
@@ -171,7 +182,7 @@ o400 else
         o422 endif	
     G53 G1 X[#<x_outsidePocket>] F[#<pocket_feedrate>]                  ;leave pocket
     (debug, leaving pocket with new tool)	
-    o425 if [#<_selected_tool> EQ 1]                                   ;probe validation
+    o425 if [#<_selected_tool> EQ 99]                                   ;probe validation
    		G53 G0 Z-165.432 
    		G53 G0 X-854.271 
    		(debug, starting G38.3 routine)
@@ -190,22 +201,19 @@ o400 else
   o420 endif
     M61 Q[#<_selected_tool>]
     G4 P0
-      (debug, Successfully loaded tool #<_selected_tool>)
-    ; *************** END LOAD *****************
-
+      (debug, Successfully loaded tool #<_selected_tool>)      
+    ;*************** END LOAD *****************
 		
     ;####################start measure#################
+    M65 P[#<airReturn_output>]
     G53 G0 Z[#<safe_z>]	
-    
-    o<tool_touch_off> call	
-    
-    (debug, we start measuring tool #<_selected_tool> with the new subroutine)
-    ; ************* END MEASURE ****************
+    o<tool_touch_off> call	    
+   ; ************* END MEASURE ****************
     
 o400 endif
 G53 G0 Z[#<safe_z>]	
 G53 G0 X-700	
 M65 P[#<cover_output>]	   ;close cover
 
-o<toolchange> endsub
+o<toolchange2> endsub
 M2

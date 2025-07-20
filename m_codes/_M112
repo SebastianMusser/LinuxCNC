@@ -1,0 +1,11 @@
+M0
+M64 P1
+	G4 P3
+M65 P1
+	G4 P1
+M64 P2
+	G4 P1
+M65 P2
+
+
+M2 (end program)
