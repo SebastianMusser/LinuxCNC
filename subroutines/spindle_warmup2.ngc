@@ -1,4 +1,7 @@
-%
+o<spindle_warmup2> sub
+
+(Macro to warm up the spindle prior to cutting)
+
 #<SafeX> =           450        ( Machine ABS X coordinate where spindle can safely warm up )
 #<SafeY> =           240        ( Machine ABS Y coordinate where spindle can safely warm up )
 #<TravelZ> =         -.25      ( machine ABS Z coordinate for travelling, typically near max Z to avoid ever hitting the work )
@@ -25,6 +28,8 @@ G04 P90
 S24000
 G04 P90
 
-M5
-%
+M500
 
+o<spindle_warmup2> endsub
+
+M2
