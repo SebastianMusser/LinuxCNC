@@ -22,7 +22,30 @@
   <property name="sidebar" stdset="0">
    <bool>false</bool>
   </property>
+  <widget class="SubCallButton" name="subcallbutton">
+   <property name="geometry">
+    <rect>
+     <x>720</x>
+     <y>280</y>
+     <width>391</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Spindle Warmup</string>
+   </property>
+   <property name="filename" stdset="0">
+    <string>spindle_warmup2.ngc</string>
+   </property>
+  </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SubCallButton</class>
+   <extends>QPushButton</extends>
+   <header>qtpyvcp.widgets.button_widgets.subcall_button</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
