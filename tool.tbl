@@ -1,5 +1,5 @@
-T1   P4   D+3.300000 ; 3.3mm drill bit
-T2   P3   D+6.000000 Z+69.686000 ; 6mm 1f dlc
+T1   P4   D+3.300000 Z+72.992250 ; 3.3mm drill bit
+T2   P3   D+6.000000 Z+68.999917 ; 6mm 1f dlc
 T3   P2   D+6.000000 Z+58.596083 ; 6mm 45deg chamfer
 T4   P5   D+4.750000 Z+56.132917 ; 6mm thread cutter
 T5   P0   D+4.000000 Z+55.130333 ; 4mm 1f dlc
