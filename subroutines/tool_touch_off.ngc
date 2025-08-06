@@ -16,7 +16,7 @@ o<400> if [#<_task> EQ 1]
 ;-1- Fixed parameters
 ;-MAIN-
 #<debug_mode> = 1		    ;The debug mode for troubleshooting is set here. 0=OFF, 1=log file . File in the machine's config folder.
-#<tool_touch_x_coords> = -902.590           ;Position of the length button in X
+#<tool_touch_x_coords> = -892.090           ;Position of the length button in X
 #<tool_touch_y_coords> = -29.03          ;Position of the length button in Y
 #<tool_touch_z_coords> = -178          ;Position above the length button in Z
 #<use_tool_table> = 1               ;If "1" the machine uses the tool table for positioning the tool over the 
@@ -30,12 +30,12 @@ o<400> if [#<_task> EQ 1]
 #<disable_pre_pos> = 1              ;Disable the pre change positioning at g30 position.
 #<addreps> = 1                      ;Number of extra repetitions if fast probe failed.
 #<lasttry> = 1                      ;If "1" the machine do a probing at the last repetition without the tool table. #<addreps> must be min "1".
-#<clean_tls> = 1		    ;If "1" the valve for cleaning the tool length sensor wirll be activated just before measuring the tool.
+#<clean_tls> = 0		    ;If "1" the valve for cleaning the tool length sensor wirll be activated just before measuring the tool.
 #<clean_tls_output> = 4		    ;This is the number that would be used in a M64 Px command (x would be 3 in this case). For this to work, you will need to define the "motion.digital-in-0x" pin in your .hal
 
 ;--Tool diameter--
-#<offset_diameter> = 0              ;Tool diameter from when a offset should take place. 0=OFF
-#<offset_direction> = 1             ;Direction of the offset. 0=X+ 1=X- 2=Y+ 3=Y-
+#<offset_diameter> = 20              ;Tool diameter from when a offset should take place. 0=OFF
+#<offset_direction> = 0             ;Direction of the offset. 0=X+ 1=X- 2=Y+ 3=Y-
 #<offset_value> = 50                ;How much of the tool diameter should move in percent.
 
 ;--Tool edge-finder--
@@ -267,6 +267,7 @@ o<200> do
       ;Tool diameter correction
       #<offset_distance> = [[#5410 * #<offset_value>]/100]
       (LOG, Offset_dis: #<offset_distance>)
+      M0           ;give the user time to adjust tool orientation
       o<108> if [#<offset_direction> EQ 1]
         ;Offset X-
         G53 G0 X[#<tool_touch_x_coords>-#<offset_distance>] Y#<tool_touch_y_coords>
