@@ -1,6 +1,6 @@
 # Halshow settings
 # This file is generated automatically.
-wm geometry . 1198x943+530+169
+wm geometry . 1198x943+206+146
 placeFrames 0.3
 set ::ratio 0.3
 set ::old_w_leftf 160
@@ -13,13 +13,6 @@ set ::watchlist {
     pin+hm2_7i76e.0.7i76.0.0.output-00
     pin+debounce.0.0.out
     pin+spindle.0.on
-    pin+hm2_7i76e.0.7i76.0.0.input-24
-    pin+hm2_7i76e.0.7i76.0.0.input-25
-    pin+hm2_7i76e.0.7i76.0.0.input-26
-    pin+hm2_7i76e.0.7i76.0.0.input-27
-    pin+hm2_7i76e.0.7i76.0.0.input-28
-    pin+hm2_7i76e.0.7i76.0.0.input-29
-    pin+hm2_7i76e.0.7i76.0.0.input-30
     pin+hm2_7i76e.0.encoder.00.count
     pin+jogincr.out-f
     pin+jogincr.sel0
@@ -31,6 +24,10 @@ set ::watchlist {
     pin+jogincr.in02
     pin+jogincr.in03
     pin+jogincr.in04
+    pin+or.estopPendantorRemote.in0
+    pin+or.estopPendantorRemote.out
+    pin+or.estopPendantorRemote.in1
+    pin+qtpyvcp.spindle-encoder-rpm.in
 }
 set ::workmode watchhal
 set ::watchInterval 100

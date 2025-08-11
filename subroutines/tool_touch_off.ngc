@@ -16,8 +16,8 @@ o<400> if [#<_task> EQ 1]
 ;-1- Fixed parameters
 ;-MAIN-
 #<debug_mode> = 1		    ;The debug mode for troubleshooting is set here. 0=OFF, 1=log file . File in the machine's config folder.
-#<tool_touch_x_coords> = -892.090           ;Position of the length button in X
-#<tool_touch_y_coords> = -29.03          ;Position of the length button in Y
+#<tool_touch_x_coords> = -893.600           ;Position of the length button in X
+#<tool_touch_y_coords> = -29.93          ;Position of the length button in Y
 #<tool_touch_z_coords> = -178          ;Position above the length button in Z
 #<use_tool_table> = 1               ;If "1" the machine uses the tool table for positioning the tool over the 
 #<tool_min_dis> = 5               ;Distance, when measuring a known tool again, between the touch plate and the tool.

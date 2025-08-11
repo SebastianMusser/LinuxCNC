@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>USER</class>
+ <widget class="QWidget" name="USER">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1645</width>
+    <height>619</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1645</width>
+    <height>619</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>USER MAIN</string>
+  </property>
+  <property name="sidebar" stdset="0">
+   <bool>false</bool>
+  </property>
+  <widget class="SubCallButton" name="subcallbutton">
+   <property name="geometry">
+    <rect>
+     <x>720</x>
+     <y>280</y>
+     <width>391</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Spindle Warmup</string>
+   </property>
+   <property name="filename" stdset="0">
+    <string>spindle_warmup2.ngc</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SubCallButton</class>
+   <extends>QPushButton</extends>
+   <header>qtpyvcp.widgets.button_widgets.subcall_button</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

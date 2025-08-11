@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1645</width>
+    <width>1440</width>
     <height>619</height>
    </rect>
   </property>
@@ -32,10 +32,58 @@
     </rect>
    </property>
    <property name="text">
+    <string>Quick Tool Change</string>
+   </property>
+   <property name="filename" stdset="0">
+    <string>quicktoolchange.ngc</string>
+   </property>
+  </widget>
+  <widget class="SubCallButton" name="subcallbutton_2">
+   <property name="geometry">
+    <rect>
+     <x>720</x>
+     <y>100</y>
+     <width>391</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="text">
     <string>Spindle Warmup</string>
    </property>
    <property name="filename" stdset="0">
     <string>spindle_warmup2.ngc</string>
+   </property>
+  </widget>
+  <widget class="SubCallButton" name="subcallbutton_4">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>100</y>
+     <width>391</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Go to front</string>
+   </property>
+   <property name="filename" stdset="0">
+    <string>gotofront.ngc</string>
+   </property>
+  </widget>
+  <widget class="SubCallButton" name="subcallbutton_3">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>280</y>
+     <width>391</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Go to back</string>
+   </property>
+   <property name="filename" stdset="0">
+    <string>gotoback.ngc</string>
    </property>
   </widget>
  </widget>

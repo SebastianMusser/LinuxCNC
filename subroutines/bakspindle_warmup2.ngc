@@ -1,0 +1,39 @@
+o<spindle_warmup2> sub
+
+(Macro to warm up the spindle prior to cutting)
+
+;G90
+G53 G0 Z-1
+S7000 M3
+G53 G1 Z-0.1 F500
+G04 P90
+S10000
+G53 G0 Z-1
+G04 P90
+S12000
+G53 G0 Z-0.1
+G04 P90
+S14000
+G53 G0 Z-1
+G04 P90
+S16000
+G53 G0 Z-0.1
+G04 P90
+S18000
+G53 G0 Z-1
+G04 P90
+S20000
+G53 G0 Z-0.1
+G04 P90
+S22000
+G53 G0 Z-1
+G04 P90
+S24000
+G53 G0 Z-0.1
+G04 P90
+
+M500
+
+o<spindle_warmup2> endsub
+
+M2

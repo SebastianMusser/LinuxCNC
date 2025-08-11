@@ -3,11 +3,11 @@ o<toolchange2> sub
 #<x_travel_pocket> = 39				      ;x travel into or out of pocket
 #<z_travel_pocket> = 50				      ;z travel to tool / from tool
 #<pocket_feedrate> = 1100    ;1600           ;feedrate to enter / leave pockets
-#<safe_z> = -29
+#<safe_z> = 0          				;-29
 #<pocket_offset> =	52.833						;distance of pockets in X direction
 #<pocket_one_y> = -556.826						; -609.659 												;y position of first slot
-#<pocket_x> = -908.520												;Y position of slot
-#<pocket_z> = -195.398									;z position of slots
+#<pocket_x> = -899.350												;x position of slot
+#<pocket_z> = -196.872									;z position of slots
 #<pocket_count> = 10
 #<toolSensor_input> = 10               ;results: 0=tool, 1=notool 
 #<drawbarSensor_input> = 11            ;results: 0=activated/pressurized 1=not activated

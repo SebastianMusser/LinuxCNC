@@ -13,7 +13,7 @@ net joint-select-y     <=  hm2_7i76e.0.7i76.0.0.input-25
 net joint-select-z    <=  hm2_7i76e.0.7i76.0.0.input-26
 
 # --- JOG-INCR-1 ---
-net jog-incr-1     <=  hm2_7i76e.0.7i76.0.0.input-30-not
+net jog-incr-1     <=  hm2_7i76e.0.7i76.0.0.input-30
 
 # --- JOG-INCR-10 ---
 net jog-incr-10     <=  hm2_7i76e.0.7i76.0.0.input-27
@@ -22,11 +22,10 @@ net jog-incr-10     <=  hm2_7i76e.0.7i76.0.0.input-27
 net jog-incr-100     <=  hm2_7i76e.0.7i76.0.0.input-28
 
 # --- ESTOP-EXT ---
-net pendant-estop     <=  hm2_7i76e.0.7i76.0.0.input-29
+#net pendant-estop     <=  hm2_7i76e.0.7i76.0.0.input-29
 
 # ---jogwheel signals to mesa encoder - shared MPG---
 
-#net joint-selected-count     <=  hm2_7i92.0.encoder.00.count
 net joint-selected-count     <=  hm2_7i76e.0.7i76.0.0.enc0.count 
 
 #  ---mpg signals---
@@ -69,10 +68,10 @@ net selected-jog-incr    <=  jogincr.out-f
     setp jogincr.suppress-no-input True
     setp jogincr.in00          0.000250
     setp jogincr.in01          0.002500
-    setp jogincr.in02          0.000000
-    setp jogincr.in03          0.025000
-    setp jogincr.in04          0.000000
-    setp jogincr.in05          0.250000
+    setp jogincr.in02          0.025000
+    setp jogincr.in03          0.000000
+    setp jogincr.in04          0.250000
+    setp jogincr.in05          0.000000
     setp jogincr.in06          0.000000
     setp jogincr.in07          0.000000
     setp jogincr.in08          0.000000

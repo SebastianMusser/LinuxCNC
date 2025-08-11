@@ -1,17 +1,16 @@
-T1   P4   D+3.300000 Z+72.992250 ; 3.3mm drill bit
-T2   P3   D+6.000000 Z+68.999917 ; 6mm 1f dlc
-T3   P2   D+6.000000 Z+58.596083 ; 6mm 45deg chamfer
-T4   P5   D+4.750000 Z+56.132917 ; 6mm thread cutter
-T5   P0   D+4.000000 Z+55.130333 ; 4mm 1f dlc
-T6   P0   D+8.000000 Z+66.674525 ; 8mm 3f dlc
-T7   P0   D+25.000000 Z+76.447751 ; bap 25
-T8   P0   D+6.000000 Z+73.768166 ; 6mm drill bit
-T9   P0   D+4.000000 ; 4mm drill bit
-T10  P0   D+6.000000 ; m3 thread cutter
-T12  P0   D+6.000000 ; New Tool
-T13  P0   D+6.000000 ; New Tool
-T14  P0   D+6.000000 ; New Tool
-T18  P0   D+4.750000 ; m6 threadcutter
-T23  P0   D+3.300000 ; drill
-T99  P0   D+2.000000 Z+83.391250 ; probe
+T1   P4   D+3.300000 Z+73.566751 ; 3.3mm drill bit
+T2   P3   D+6.000000 Z+70.397167 ; 6mm 1f dlc
+T3   P2   D+6.000000 Z+58.420000 ; 6mm 45deg chamfer
+T4   P5   D+4.750000 Z+56.132917 ; M6 thread cutter
+T5   P0   D+4.000000 Z+54.932583 ; 4mm 1f dlc
+T6   P0   D+8.000000 Z+66.526775 ; 8mm 3f dlc short
+T7   P0   D+25.000000 Z+76.186668 ; bap 25
+T8   P0   D+5.000000 Z+73.682083 ; 5mm drill bit
+T9   P0   D+4.000000 Z+60.642250 ; 4mm drill bit
+T10  P0   D+2.850000 ; m4 thread cutter
 T11  P0   D+8.000000 Z+91.285666 ; 8mm 3f dlc long
+T12  P0   D+4.000000 ; 4mm 1f dlf long
+T13  P0   D+3.900000 ; m5 thread cutter
+T14  P0   D+2.000000 ; 2mm 1f dlc
+T18  P0   D+4.750000 ; m6 threadcutter
+T99  P0   D+2.000000 Z+83.391250 ; probe

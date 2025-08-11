@@ -1,0 +1,8 @@
+o<gotoback> sub
+
+G53 G0 Z0
+G53 G0 X-500 Y-5
+
+o<gotoback> endsub
+
+M2

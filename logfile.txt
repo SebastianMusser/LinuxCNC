@@ -12,12 +12,12 @@
  Retract: 0.000000
  RETRACT.var: 2.000000
  ===
- tool touch x coodrs: -892.090000
- tool touch y coodrs: -29.030000
+ tool touch x coodrs: -893.600000
+ tool touch y coodrs: -29.930000
  tool touch z coodrs: -178.000000
  Min XYZ: -940.000000 -700.000000 -200.000000
  Max XYZ: 0.000000 0.000000 0.010000
- Pos XYZ: 39.000065 105.405268 27.293416
+ Pos XYZ: -452.350000 -556.826000 30.643416
  === MAIN ===
  tool table: 1.000000
  tool min dis: 5.000000
@@ -40,15 +40,15 @@
  ============================
  Automatic: 1.000000
  Parameters: -1.000000
- Old tool: 999.000000 / New tool: 2.000000
+ Old tool: 999.000000 / New tool: 1.000000
  ============================
- Offset_Z: 100.285666
- Old tool length: 69.686000
+ Offset_Z: 91.285666
+ Old tool length: 73.566167
  Old tool
- Probe start pos: -103.314000
+ Probe start pos: -99.433833
  max travel: 50.000000
- Fast probe: -8.746085
+ Fast probe: -13.179249
  ============================
- Slow probe: -8.714417
- New tool length: 68.999917
+ Slow probe: -13.147583
+ New tool length: 73.566751
  END
