@@ -187,7 +187,6 @@ o400 else
    		G53 G0 X-854.271 
    		(debug, starting G38.3 routine)
 			G38.3 X2.5 F100
-			;G0 G91 X-2
 			G53 G0 X-854.271
 			
 				o426 if [#5070 EQ 1]                                                  
