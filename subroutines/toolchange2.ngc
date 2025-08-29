@@ -6,7 +6,7 @@ o<toolchange2> sub
 #<safe_z> = 0          				;-29
 #<pocket_offset> =	52.833						;distance of pockets in X direction
 #<pocket_one_y> = -556.826						; -609.659 												;y position of first slot
-#<pocket_x> = -899.350												;x position of slot
+#<pocket_x> = -900.735					;-899.350												;x position of slot
 #<pocket_z> = -196.872									;z position of slots
 #<pocket_count> = 10
 #<toolSensor_input> = 10               ;results: 0=tool, 1=notool 
@@ -54,11 +54,11 @@ G90
 #<y_new_tool> = [[[#<_selected_tool> - 1] * #<pocket_offset> ] + #<pocket_one_y>]
 
 o140 if [#<_selected_tool> EQ 99]     ;set location for probe (pocket 1)
-	#<y_new_tool> = -609.659
+	#<y_new_tool> = -610.435
 o140 endif 
 
 o150 if [#<_current_tool> EQ 99]			;set location for probe (pocket 1)
-	#<y_current_tool> = -609.659
+	#<y_current_tool> = -610.435
 o150 endif
 
 G53 G0 Z[#<safe_z>]	
